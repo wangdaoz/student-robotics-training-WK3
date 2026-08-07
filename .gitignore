@@ -216,3 +216,20 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# --- Custom rules (Milestone 3.1 / 3.4) ---
+
+# Generated videos: MuJoCo renders/recordings are disposable by default.
+# To keep one intentionally as evidence, force-add it explicitly:
+#   git add -f evidence/logs/demo_run.mp4
+*.mp4
+*.mov
+*.avi
+*.webm
+
+# Copied third-party assets with unclear license/provenance.
+# Keep raw downloads in a staging folder that never gets committed.
+# Only move files into models/berkeley/ once the license/source is
+# confirmed and documented in docs/berkeley_asset_map.md.
+models/berkeley/_staging/
+models/berkeley/raw_downloads/
