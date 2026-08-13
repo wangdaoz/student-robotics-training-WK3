@@ -1,0 +1,4 @@
+[PASS] model loads
+[PASS] simulation steps and sphere falls under gravity
+[PASS] no NaN/Inf in final state
+[PASS] all checks passed

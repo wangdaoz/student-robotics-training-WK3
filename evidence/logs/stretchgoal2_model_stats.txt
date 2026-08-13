@@ -1,0 +1,8 @@
+Model Statistics:scripts/scenes/smoke_scene.xml
+ bodies (nbody):   2
+ joints (njnt):    1
+ geoms (ngeom):    2
+ actuators (nu):   0
+ qpos size (nq):   7
+ qvel size (nv):   6
+ joint 0: type=free, name=
