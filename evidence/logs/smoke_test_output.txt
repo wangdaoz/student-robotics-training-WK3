@@ -1,0 +1,3 @@
+[PASS] mujoco smoke test: 100 steps completed
+       simulation_time=0.2000
+       mujoco version=3.11.0
