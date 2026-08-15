@@ -187,3 +187,40 @@ Stretch Goals:
                         EOF
                     '''
             A Randered video
+
+Milestone 3.3
+
+    Engineering Tasks:
+                     
+                #8, #9
+
+            Error #1:
+                Traceback (most recent call last):
+                  File "/home/kevin-lianhu/student-robotics-training-WK3/scripts/load_simple_arm.py", line 72, in <module>
+                    main()
+                  File "/home/kevin-lianhu/student-robotics-training-WK3/scripts/load_simple_arm.py", line 50, in main
+                    model, data = load_model()
+                                  ^^^^^^^^^^^^
+                  File "/home/kevin-lianhu/student-robotics-training-WK3/scripts/load_simple_arm.py", line 24, in load_model
+                    model = mujoco.MjModel.from_xml_path(path)
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                ValueError: XML Error: invalid keyword: 'Local'
+                Element 'compiler', line 11
+
+            Fix: Open the /home/kevin-lianhu/student-robotics-training-WK3/models/simple_arm.xml, access to line 11, Element 'compiler', revised 'Local' to 'local'
+            
+            Error #2:
+                Traceback (most recent call last):
+                  File "/home/kevin-lianhu/student-robotics-training-WK3/scripts/load_simple_arm.py", line 72, in <module>
+                    main()
+                  File "/home/kevin-lianhu/student-robotics-training-WK3/scripts/load_simple_arm.py", line 50, in main
+                    model, data = load_model()
+                                  ^^^^^^^^^^^^
+                  File "/home/kevin-lianhu/student-robotics-training-WK3/scripts/load_simple_arm.py", line 24, in load_model
+                    model = mujoco.MjModel.from_xml_path(path)
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+             
+                ValueError: XML Error: invalid keyword: 'True'
+                Element 'joint', line 38
+
+            Fix: Open the /home/kevin-lianhu/student-robotics-training-WK3/models/simple_arm.xml, access to line 38, Element 'joint', revised 'True' to 'true'
