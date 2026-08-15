@@ -1,0 +1,56 @@
+<mujoco model="simple_arm">
+  <!-- 
+    Milestone 3.3 deliverable: models/simple_arm.xml
+
+    A two-joint (shoulder + elbow) planar-ish arm mounted on a fixed base.
+    Every element that will be referenced later (by inspect_model.py,
+    control_simple_arm.py, verify_simple_model.py) is given an explicit
+    name so the rest of the codebase never depends on numeric indices.
+  -->
+
+  <compiler angle="radian" coordinate="local"/>
+
+  <option gravity="0 0 -9.81" timestep="0.002"/>
+
+  <default>
+    <joint damping="0.5"/>
+    <geom rgba="0.7 0.7 0.75 1"/>
+  </default>
+
+  <worldbody>
+    <!-- Lighting and ground plane so the scene is visible in the viewer -->
+    <light name="key_light" diffuse="0.8 0.8 0.8" pos="0 0 3" dir="0 0 -1"/>
+    <geom name="floor" type="plane" size="2 2 0.1" rgba="0.9 0.9 0.9 1"/>
+
+    <!-- Fixed base: no joint, so it stays welded to the world -->
+    <body name="base" pos="0 0 0.05">
+        <geom name="base_geom" type="cylinder" size="0.05 0.05" rgba="0.3 0.3 0.3 1"/>
+
+        <!-- First nested body: upper arm, driven by the shoulder hinge -->
+        <body name="upper_arm" pos="0 0 0.05">
+          <joint name="shoulder_joint" type="hinge" axis="0 1 0"
+               range="-1.5708 1.5708" limited="true" damping="0.5"/>
+          <geom name="upper_arm_geom" type="capsule"
+              fromto="0 0 0  0 0 0.3" size="0.02"/>
+          
+          <!-- Second nested body: forearm, driven by the elbow hinge -->
+          <body name="forearm" pos="0 0 0.3">
+            <joint name="elbow_joint" type="hinge" axis="0 1 0"
+                   range="-2.0944 0" limited="true" damping="0.5"/>
+            <geom name="forearm_geom" type="capsule"
+                  fromto="0 0 0 0 0 0.25" size="0.015"/>
+          </body>
+        </body>
+    </body>
+  </worldbody>
+
+  <actuator>
+    <!-- Position actuators: safer starting point than raw torque motors
+         for a first joint-control demo (see docs/mjcf_notes.md). -->
+    <position name="shoulder_actuator" joint="shoulder_joint"
+              kp="20" ctrlrange="-1.5708 1.5708"/>
+    <position name="elbow_actuator" joint="elbow_joint"
+              kp="15" ctrlrange="-2.0944 0"/>
+  </actuator>
+
+</mujoco>

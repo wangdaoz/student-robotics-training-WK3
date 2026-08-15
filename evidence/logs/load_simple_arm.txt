@@ -1,0 +1,4 @@
+Loaded '/home/kevin-lianhu/student-robotics-training-WK3/models/simple_arm.xml' successfully (headless).
+simulation_time = 0.4000 s
+qpos = [-5.58942128e-06  1.40539750e-05]
+qvel = [-0.00469389  0.01117331]
