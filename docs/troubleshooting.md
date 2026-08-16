@@ -192,7 +192,7 @@ Milestone 3.3
 
     Engineering Tasks:
                      
-                #8, #9
+        #8, #9
 
             Error #1:
                 Traceback (most recent call last):
@@ -224,3 +224,60 @@ Milestone 3.3
                 Element 'joint', line 38
 
             Fix: Open the /home/kevin-lianhu/student-robotics-training-WK3/models/simple_arm.xml, access to line 38, Element 'joint', revised 'True' to 'true'
+
+        #10
+            Error 1
+            '''
+               Loaded '/home/kevin-lianhu/student-robotics-training-WK3/models/simple_arm.xml' successfully.
+               bodies(nbody): 4
+               joints(njnt): 2
+               Traceback (most recent call last):
+                 File "/home/kevin-lianhu/student-robotics-training-WK3/scripts/inspect_model.py", line 54, in <module>
+                   main()
+                 File "/home/kevin-lianhu/student-robotics-training-WK3/scripts/inspect_model.py", line 51, in main
+                   model_inspection(model)
+                 File "/home/kevin-lianhu/student-robotics-training-WK3/scripts/inspect_model.py", line 20, in model_inspection
+                   print(f"actuators(nact): {model.nact}")
+                              ^^^^^^^^^^
+               AttributeError: 'mujoco._structs.MjModel' object has no attribute 'nact'. Did you mean: 'noct'?
+            '''
+
+            Fix: Open the File "/home/kevin-lianhu/student-robotics-training-WK3/scripts/inspect_model.py", access to the line 20,
+            actiators are belong to Control Input, the correspondding MjModel object attrbute is 'nu'; MjModel attribute has no attribute 'nact'.
+
+            Error 2
+            '''
+               Traceback (most recent call last):
+                 File "/home/kevin-lianhu/student-robotics-training-WK3/scripts/inspect_model.py", line 50, in <module>
+                   main()
+                 File "/home/kevin-lianhu/student-robotics-training-WK3/scripts/inspect_model.py", line 47, in main
+                   model_inspection(model)
+                 File "/home/kevin-lianhu/student-robotics-training-WK3/scripts/inspect_model.py", line 26, in model_inspection
+                   print(f"body {i}: {model.body[i].name}")
+                                      ~~~~~~~~~~^^^
+               TypeError: 'method' object is not subscriptable
+            '''
+            Fix:
+                 change 'model.body[i]' to 'model.body(i)' because 'body()' is a method for model object.
+
+            Error 3
+            '''
+                Traceback (most recent call last):
+                  File "/home/kevin-lianhu/student-robotics-training-WK3/scripts/inspect_model.py", line 50, in <module>
+                    main()
+                  File "/home/kevin-lianhu/student-robotics-training-WK3/scripts/inspect_model.py", line 47, in main
+                    model_inspection(model)
+                  File "/home/kevin-lianhu/student-robotics-training-WK3/scripts/inspect_model.py", line 38, in model_inspection
+                    print(f"qpos {i}: {model.name_qpos[i]}")
+                                       ^^^^^^^^^^^^^^^
+                AttributeError: 'mujoco._structs.MjModel' object has no attribute 'name_qpos'. Did you mean: 'cam_pos'?
+            '''
+            Fix:
+                in function 'model_inspection(model)', create a MjData object for the MjModel; Then, access MjData's 'qpos' array 
+                '''
+                  data = mujoco.MjData(model)
+                  ...
+                  print("\nqpos:")
+                  for i in range(model.nq):
+                      print(f"qpos {i}: {data.qpos[i]}")
+                '''
