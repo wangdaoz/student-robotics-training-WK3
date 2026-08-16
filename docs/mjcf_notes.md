@@ -90,7 +90,23 @@
 
                 So the final result is: /home/user/student-robotics-training-WK3/models/simple_arm.xml
 
+## scripts/control_simple_arm.py
+   
+       -- line 57, line 73
 
-              
-
+           '''
+              qpos_addr = model.jnt_qposadr[model.joint(joint_name).id]
+              isolation_qpos_addr = model.jnt_qposadr[model.joint(ISOLATION_JOINT).id]
+           '''
+              ● model.joint(...)
                 
+                 looks joint up by name in the model; Returning a small "view" object with info about it.
+                 This is the name-based lookup habit from before, applied to joints instead of actuators.
+
+              ● model.jnt_qposadr(...)
+                
+                 Each joint corresponds an entry, so for each MjModel object, there exists an table: data.pos array.
+                 This method looks up the table and search where the target joint's position value(index) actually lives.
+
+         Note:
+              If you want to drive the elbow instead, or both joints together, the only lines that need to change are TARGET_JOINT/TARGET_ACTUATOR at the top — everything else looks itself up by name.
