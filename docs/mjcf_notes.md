@@ -110,3 +110,36 @@
 
          Note:
               If you want to drive the elbow instead, or both joints together, the only lines that need to change are TARGET_JOINT/TARGET_ACTUATOR at the top — everything else looks itself up by name.
+
+
+      # Summary of the Motion
+          
+             The shoulder joint is controled by shoulder actuator. We set a series of safe targets within the safe range of the shoulder joint; The shoulder joint will sweep these targets in a sequence: low -> high -> low with no repeated endpoints. 
+
+             Thus, the shoulder joint will rotate from original position and back to the original position.
+
+             The elbow joint is not drived here. The control method is same as shoulder joint's control.
+
+## tests/verify_simple_model.py
+            
+            '''
+                def test_model_steps_without_exploding():
+                    """Sanity check: the model is numerically stable, not just well-named."""
+                    model = load_model()
+                    data = mujoco.MjData(model)
+                    for _ in range(50):
+                        mujoco.mj_step(model, data)
+                    assert all(abs(v) < 1e6 for v in data.qvel), (
+                        "simulation velocities exploded -- check damping and gains"
+                     )
+            '''
+
+            First: what data.qvel actually is. It's the velocity of every joint in the model — for simple_arm.xml, a 2-element array: [shoulder angular velocity, elbow angular velocity], in rad/s. A healthy simulation of a small arm swinging under gravity and mild actuator forces should have velocities somewhere in the single or low double digits — nothing close to a million.
+
+            Now, breaking it on purpose — stripping the joint damping and blowing the timestep out to 250x what's in the XML (a classic way to induce genuine numerical instability):
+
+            2159 rad/s is already absurd — this is a tiny arm with 0.3–0.55m links, there's no physical scenario where it should spin that fast. A real numerical blow-up (the kind caused by an actual bug — e.g. someone deleting the damping from your XML, or a bad integration step) typically doesn't stop at hundreds; it compounds exponentially step over step into the millions, or overflows into inf/nan outright. 1e6 sits comfortably above anything a healthy version of this model would ever produce, but well below where a genuine explosion lands — so it has essentially zero false-positive risk while still catching real instability.
+
+            the comparison also catches NaN and inf for free, without any extra code. In Python (and NumPy), any comparison involving NaN returns False — including abs(nan) < 1e6. So if a joint velocity ever actually becomes NaN (which is what a truly catastrophic blow-up looks like), that element makes all(...) immediately False, and the test fails — even though the check never explicitly asks "is this NaN?"
+
+            One honest caveat I found while testing this — worth knowing, not necessarily worth fixing right now: MuJoCo has its own internal instability watchdog. When I pushed the timestep hard enough to actually produce NaN/Inf internally, MuJoCo printed a warning ("WARNING: Nan, Inf or huge value in QACC...") to stderr and reset the state on its own, rather than letting the corrupted values sit in data.qvel for you to inspect. That means a transient explosion in the middle of a run could self-correct by the time your test checks data.qvel at the very end (our test only checks after all 50 steps finish, once). For this milestone's purposes that's fine — the test is a smoke check, not a rigorous stability proof — but if you ever wanted a stricter version, you'd check qvel (or watch for that stderr warning) after every step inside the loop, not just once at the end.
