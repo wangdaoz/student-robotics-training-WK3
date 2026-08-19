@@ -39,10 +39,26 @@
                    range="-2.0944 0" limited="true" damping="0.5"/>
             <geom name="forearm_geom" type="capsule"
                   fromto="0 0 0 0 0 0.25" size="0.015"/>
+
+            <!-- Stretch goal: a site marking the arm's tip (its "end
+                 effector" point), positioned at the far end of the
+                 forearm capsule. A site has no physics effect on its
+                 own;it's just a named, trackable reference frame. -->
+            <site name="tip_site" pos="0 0 0.25" size="0.01" rgba="1 0 0 1"/>   
           </body>
         </body>
     </body>
   </worldbody>
+
+  <sensor>
+    <!-- framepos reports the WORLD-frame xyz position of the named
+         site every step, written into data.sensordata. This is what
+         actually makes "tip_site" a position SENSOR rather than just
+         a visual marker: the sensor is what a script reads to know
+         where the tip is, without doing any forward-kinematics math
+         itself. -->
+    <framepos name="tip_position_sensor" objtype="site" objname="tip_site"/>
+  </sensor>
 
   <actuator>
     <!-- Position actuators: safer starting point than raw torque motors
