@@ -207,3 +207,51 @@
                                loaded here using a structure-only variant with visual <asset>/mesh geoms stripped 
                                — collision geometry (boxes/cylinders) and all bodies/joints/actuators are untouched and unaffected by this
      ____________________________________________________________________________________________________________________
+
+## File Dependency Graph(task #21)
+
+  ```mermaid
+     graph TD
+    A[Main repo<br/>Berkeley-Humanoid-Lite<br/>pinned: v1.1.0 / aa93e47] -->|git submodule| B[Assets repo<br/>Berkeley-Humanoid-Lite-Assets<br/>pinned: v2025.09.03/dcde70d]
+    B --> C[mjcf/bhl_scene.xml]
+    B --> D[mjcf/bhl_biped_scene.xml]
+    C -->|include| E[mjcf/berkeley_humanoid_lite.xml<br/>FULL ROBOT — 22 DOF]
+    D -->|include| F[mjcf/berkeley_humanoid_lite_biped.xml<br/>BIPED — 12 DOF]
+    E -->|meshdir=assets| G["mjcf/assets/merged/*.stl<br/>⚠ NOT FOUND"]
+    B --> H[meshes/ folder<br/>per README — confirmed to exist]
+    style G fill:#f88,stroke:#900
+    style H fill:#ff8,stroke:#960
+  ```
+
+## Reproduction Procedure
+   
+   1. Clone the main repo with submodules (required — assets are pulled in via .gitmodules):
+      '''
+         git clone --recurse-submodules https://github.com/HybridRobotics/Berkeley-Humanoid-Lite.git
+         cd Berkeley-Humanoid-Lite
+      '''
+   2. Checkout the pinned version used for this asset map:
+      '''
+         git checkout v1.1.0 / git checkout aa93e47
+         git submodule update --init --recursive
+      '''
+          
+       Note: fill in the actual tag/commit SHA from your own git rev-parse HEAD — don't leave a placeholder in the real deliverable.
+       
+   3. Run all commands from this repo root — relative paths in scripts assume it.
+
+   4. The full-robot MJCF entry file is:
+      source/berkeley_humanoid_lite_assets/data/robots/berkeley_humanoid/berkeley_humanoid_lite/mjcf/berkeley_humanoid_lite.xml
+      (biped-only variant: berkeley_humanoid_lite_biped.xml, 12 DOF)
+
+   5. Known issue: this file's <compiler meshdir="assets"> path does not resolve —
+      no assets/ folder exists alongside the mjcf files as of the pinned commit above.
+      The README describes meshes living in a sibling meshes/ folder instead. Loading
+      the file directly via mujoco.MjModel.from_xml_path() will fail with a
+      "file not found" error on the .stl mesh files.
+
+   6. Workaround for structure-only inspection (bodies/joints/actuators, no rendering):
+      strip the <asset> block and any <geom class="visual"> elements before loading.
+      [link to your stripping script if you keep one in the repo]
+
+   7. License: code is MIT; assets/CAD are CC BY-SA 4.0 (see LICENCE file and README).
