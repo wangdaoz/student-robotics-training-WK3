@@ -48,8 +48,6 @@
                                                                 
                             ● Only 12 actuated joints/actuators — leg joints only (leg_left_hip_roll_joint, leg_right_knee_pitch_joint, etc.), no arm joints at all
 
-                            ● This is the one used by the separate Velocity-Berkeley-Humanoid-Lite-Biped-v0 training task mentioned in the docs
-
                             ● Its own scene wrapper, bhl_biped_scene.xml, includes it separately
 
     Task #19: Identify included XML files, mesh directories, and likely working-directory assumptions
@@ -77,9 +75,15 @@
                   But the XML itself says: <compiler meshdir="assets" .../>, and mesh entries reference paths like merged/leg_right_knee_pitch_visual.stl — implying the loader looks for assets/merged/... relative to wherever the XML file sits.
 
                   The directory: '/data/robots/berkeley_humanoid/berkeley_humanoid_lite/meshes/' indeed exists and contains '.stl' files.
+ 
+                  Further verification:
+                    ● config.json has "merge_stls": true — confirms a merge step really does run.
 
-                  Then, in repo, there is a '.gitignore' file and 'assets/' folder is excluded.
-                  Thus, in the original local repo, the subfolder: 'Berkeley-Humanoid-Lite-Assets/data/robots/berkeley_humanoid/berkeley_humanoid_lite/mjcf/assets/merged/' is existing to store a copy of meshes. But the contributors didn't commit this subfolder(files inside).
+                    ● .gitignore has **/assets/* under a # Onshape-to-robot comment — confirms this output is intentionally excluded from git.
+
+                    ● The export script (export_onshape_to_mjcf.py) actually creates mjcf/assets/merged/, copies meshes there, then runs content.replace("assets/merged/", "../meshes/") to rewrite the XML paths to point at the shared meshes/ folder instead — then deletes the assets folder (shutil.rmtree).
+
+                  Thus, it's a deliberately generated-and-discarded intermediate build artifact. And the path-rewrite step has a real bug: it does a literal string search for "assets/merged/", but MJCF splits that into two separate attributes (meshdir="assets" + file="merged/x.stl") that never appear concatenated as one string — so the rewrite silently never fires on this file. That's the actual root cause of the broken path, not just "files went missing."
 
             3. Working Directory Assumptions
                
@@ -232,11 +236,11 @@
       '''
    2. Checkout the pinned version used for this asset map:
       '''
-         git checkout v1.1.0 / git checkout aa93e47
+         git checkout v1.1.0 or git checkout aa93e47
          git submodule update --init --recursive
       '''
           
-       Note: fill in the actual tag/commit SHA from your own git rev-parse HEAD — don't leave a placeholder in the real deliverable.
+       Note: in commands: <git checkout v1.1.0> or <git checkout aa93e47> the tag or commit SHA is verified. You should input the actual tag or commit SHA of the repo with submodules.
        
    3. Run all commands from this repo root — relative paths in scripts assume it.
 
