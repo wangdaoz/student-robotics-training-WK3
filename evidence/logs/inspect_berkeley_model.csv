@@ -1,0 +1,51 @@
+Loaded '/home/kevin-lianhu/student-robotics-training-WK3/models/berkeley/Berkeley-Humanoid-Lite-Assets/data/robots/berkeley_humanoid/berkeley_humanoid_lite/mjcf/bhl_scene.xml' successfully.
+bodies(nbody): 27
+joints(njnt): 23
+actuators(nu): 22
+qpos size(nq): 29
+qvel size(nv): 28
+joint: base_freejoint
+joint: arm_left_shoulder_pitch_joint
+joint: arm_left_shoulder_roll_joint
+joint: arm_left_shoulder_yaw_joint
+joint: arm_left_elbow_pitch_joint
+joint: arm_left_elbow_roll_joint
+joint: arm_right_shoulder_pitch_joint
+joint: arm_right_shoulder_roll_joint
+joint: arm_right_shoulder_yaw_joint
+joint: arm_right_elbow_pitch_joint
+joint: arm_right_elbow_roll_joint
+joint: leg_left_hip_roll_joint
+joint: leg_left_hip_yaw_joint
+joint: leg_left_hip_pitch_joint
+joint: leg_left_knee_pitch_joint
+joint: leg_left_ankle_pitch_joint
+joint: leg_left_ankle_roll_joint
+joint: leg_right_hip_roll_joint
+joint: leg_right_hip_yaw_joint
+joint: leg_right_hip_pitch_joint
+joint: leg_right_knee_pitch_joint
+joint: leg_right_ankle_pitch_joint
+joint: leg_right_ankle_roll_joint
+actuator: arm_left_shoulder_pitch_joint  range=(-1.571, 0.785)
+actuator: arm_left_shoulder_roll_joint  range=(-0.262, 1.309)
+actuator: arm_left_shoulder_yaw_joint  range=(-0.785, 0.785)
+actuator: arm_left_elbow_pitch_joint  range=(-0.000, 1.571)
+actuator: arm_left_elbow_roll_joint  range=(-0.785, 0.785)
+actuator: arm_right_shoulder_pitch_joint  range=(-0.785, 1.571)
+actuator: arm_right_shoulder_roll_joint  range=(-1.309, 0.262)
+actuator: arm_right_shoulder_yaw_joint  range=(-0.785, 0.785)
+actuator: arm_right_elbow_pitch_joint  range=(-1.571, -0.000)
+actuator: arm_right_elbow_roll_joint  range=(-0.785, 0.785)
+actuator: leg_left_hip_roll_joint  range=(-0.175, 1.571)
+actuator: leg_left_hip_yaw_joint  range=(-0.982, 0.589)
+actuator: leg_left_hip_pitch_joint  range=(-1.898, 0.982)
+actuator: leg_left_knee_pitch_joint  range=(-0.000, 2.443)
+actuator: leg_left_ankle_pitch_joint  range=(-0.785, 0.785)
+actuator: leg_left_ankle_roll_joint  range=(-0.262, 0.262)
+actuator: leg_right_hip_roll_joint  range=(-1.571, 0.175)
+actuator: leg_right_hip_yaw_joint  range=(-0.589, 0.982)
+actuator: leg_right_hip_pitch_joint  range=(-1.898, 0.982)
+actuator: leg_right_knee_pitch_joint  range=(-0.000, 2.443)
+actuator: leg_right_ankle_pitch_joint  range=(-0.785, 0.785)
+actuator: leg_right_ankle_roll_joint  range=(-0.262, 0.262)

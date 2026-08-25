@@ -1,4 +1,4 @@
-Milestone 3.2 
+### Milestone 3.2 
     Engineering Task 4
      Issue #1:
        In case: run locally in your Linux/WSL python virtual environment
@@ -188,7 +188,7 @@ Stretch Goals:
                     '''
             A Randered video
 
-Milestone 3.3
+### Milestone 3.3
 
     Engineering Tasks:
                      
@@ -281,3 +281,48 @@ Milestone 3.3
                   for i in range(model.nq):
                       print(f"qpos {i}: {data.qpos[i]}")
                 '''
+
+### Milestone 3.5
+   
+   Engineering Tasks
+        
+           #23 Write scripts/inspect_berkeley_model.py to load the model and list model statistics, named joints, named actuators, and ranges.
+
+               after running the command: ''' python scripts/inspect_berkeley_model.py '''
+
+               the feedback:
+                          [
+                            Traceback (most recent call last):
+                              File "/home/kevin-lianhu/student-robotics-training-WK3/scripts/inspect_berkeley_model.py", line 11, in <module>
+                                model = mujoco.MjModel.from_xml_path(MODEL_PATH)
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                            ValueError: Error: Error opening file '/home/kevin-lianhu/student-robotics-training-WK3/models/berkeley/Berkeley-Humanoid-Lite-Assets/data/robots/berkeley_humanoid/berkeley_humanoid_lite/mjcf/merged/leg_right_ankle_roll_visual.stl'
+                          ]
+          
+              This is a legitimate, anticipated blocker:
+                    Further verification:
+                      ● config.json has "merge_stls": true — confirms a merge step really does run.
+
+                      ● .gitignore has **/assets/* under a # Onshape-to-robot comment — confirms this output is intentionally excluded from git.
+
+                      ● The export script (export_onshape_to_mjcf.py) actually creates mjcf/assets/merged/, copies meshes there, then runs content.replace("assets/merged/", "../meshes/") to rewrite the XML paths to point at the shared meshes/ folder instead — then deletes the assets folder (shutil.rmtree).
+
+               Thus, it's a deliberately generated-and-discarded intermediate build artifact. And the path-rewrite step has a real bug: it does a literal string search for "assets/merged/", but MJCF splits that into two separate attributes (meshdir="assets" + file="merged/x.stl") that never appear concatenated as one string — so the rewrite silently never fires on this file. That's the actual root cause of the broken path, not just "files went missing."
+
+               It's a genuine, reproducible gap between what the MJCF's meshdir/file attributes expect and what the repo's .gitignore actually ships, and any other engineer doing a clean clone will hit the identical error.
+
+               Fix:
+                   '''
+                       cd models/berkeley/Berkeley-Humanoid-Lite-Assets/data/robots/berkeley_humanoid/berkeley_humanoid_lite
+                       mkdir -p mjcf/assets/merged
+                       cp meshes/*.stl mjcf/assets/merged/
+                   '''
+
+                   and re-run the script: scripts/inspect_berkeley_model.py
+
+            #24 - #26
+
+               After inputting the command: <python scripts/control_berkeley_joint.py --ctrl 1.5 --duration 3.0>, nothing displays and the target .csv file in the 'evidence/' didn't exist.
+
+               Fix:  <if __name__ == "__main__": main()> is missing at the bottom of the file: scripts/control_berkeley_joint.py.
+                    Add this segment of codes at the bottom of the file and re-run the file.
