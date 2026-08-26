@@ -326,3 +326,213 @@ Stretch Goals:
 
                Fix:  <if __name__ == "__main__": main()> is missing at the bottom of the file: scripts/control_berkeley_joint.py.
                     Add this segment of codes at the bottom of the file and re-run the file.
+
+  #28
+ Blocker 1:
+
+    After input the commands:
+               '''
+                  source .venv/bin/activate
+                  pytest tests/verify_berkeley_model.py -v
+               '''
+
+               The system reported the following error:
+=================================================================== test session starts ===================================================================
+platform linux -- Python 3.12.3, pytest-7.4.4, pluggy-1.4.0 -- /usr/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/kevin-lianhu/student-robotics-training-WK3
+plugins: colcon-core-0.21.0, cov-4.1.0
+collected 0 items / 1 error                                                                                                                               
+
+========================================================================= ERRORS ==========================================================================
+_____________________________________________________ ERROR collecting tests/verify_berkeley_model.py _____________________________________________________
+ImportError while importing test module '/home/kevin-lianhu/student-robotics-training-WK3/tests/verify_berkeley_model.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/verify_berkeley_model.py:9: in <module>
+    import mujoco
+E   ModuleNotFoundError: No module named 'mujoco'
+================================================================= short test summary info =================================================================
+ERROR tests/verify_berkeley_model.py
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+==================================================================== 1 error in 0.10s ===================================================================== 
+
+
+Analysis:
+
+     When you ran python scripts/control_berkeley_joint.py, that command found some python on your PATH — very possibly a virtual environment, conda env, or a user-level pip install — and mujoco is installed there. But the pytest command is a separate executable with its own shebang line pointing at whatever Python it was originally installed for — often the system interpreter, /usr/bin/python3, especially if pytest was installed via apt/pip install --user at some point rather than inside the same environment as mujoco. So "the tests run" and "the control script runs" can silently be two completely different Python installations, each with their own separate set of installed packages.
+
+    1., inpute the following commands confirm the analysis
+       '''
+          which python3
+          python3 -c "import sys; print(sys.executable)"
+          python3 -c "import mujoco; print(mujoco.__file__)"
+
+          which pytest
+          head -1 $(which pytest)
+       '''
+         Results:
+              [
+                 /usr/bin/python3
+                 Traceback (most recent call last):
+                 File "<string>", line 1, in <module>
+
+                 /usr/bin/pytest
+                 #!/usr/bin/python3
+              ]
+
+      2. directly confirmation, not in virtual environment
+         '''
+            which python
+            python -c "import mujoco; print(mujoco.__file__)"
+         '''
+
+         results:
+              [
+                Command 'python' not found, did you mean:
+                command 'python3' from deb python3
+                command 'python' from deb python-is-python3
+              ]
+
+      3. reactivate the virtual environment and figure out which module not exist
+        '''
+
+           source .venv/bin/activate
+           python -c "import mujoco; print(mujoco.__file__)"
+           python -m pytest --version
+        
+        '''
+
+        Results:
+                '''
+                   /home/kevin-lianhu/student-robotics-training-WK3/.venv/lib/python3.12/site-packages/mujoco/__init__.py
+                   /home/kevin-lianhu/student-robotics-training-WK3/.venv/bin/python: No module named pytest
+                '''
+
+Fix:
+     in activated venv, install pytest module
+                '''
+                   pip install pytest
+
+                '''
+
+                Results:
+                         [
+                             Collecting pytest
+                               Downloading pytest-9.1.1-py3-none-any.whl.metadata (7.6 kB)
+                             Collecting iniconfig>=1.0.1 (from pytest)
+                               Downloading iniconfig-2.3.0-py3-none-any.whl.metadata (2.5 kB)
+                             Requirement already satisfied: packaging>=22 in ./.venv/lib/python3.12/site-packages (from pytest) (26.3)
+                             Collecting pluggy<2,>=1.5 (from pytest)
+                               Downloading pluggy-1.6.0-py3-none-any.whl.metadata (4.8 kB)
+                             Requirement already satisfied: pygments>=2.7.2 in ./.venv/lib/python3.12/site-packages (from pytest) (2.20.0)
+                             Downloading pytest-9.1.1-py3-none-any.whl (386 kB)
+                             Downloading pluggy-1.6.0-py3-none-any.whl (20 kB)
+                             Downloading iniconfig-2.3.0-py3-none-any.whl (7.5 kB)
+                             Installing collected packages: pluggy, iniconfig, pytest
+                             Successfully installed iniconfig-2.3.0 pluggy-1.6.0 pytest-9.1.1
+                         ]
+
+    Then run the command:
+                '''
+                   python -m pytest tests/verify_berkeley_model.py -v
+                '''
+
+Blocker 2:
+
+=================================================================== test session starts ===================================================================
+platform linux -- Python 3.12.3, pytest-9.1.1, pluggy-1.6.0 -- /home/kevin-lianhu/student-robotics-training-WK3/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /home/kevin-lianhu/student-robotics-training-WK3
+plugins: anyio-4.14.2
+collected 4 items                                                                                                                                         
+
+tests/verify_berkeley_model.py::test_entry_file_loads ERROR                                                                        [ 25%]
+tests/verify_berkeley_model.py::test_selected_joint_exists ERROR                                                                       [ 50%]
+tests/verify_berkeley_model.py::test_selected_actuator_exists ERROR                                                                       [ 75%]
+tests/verify_berkeley_model.py::test_actuator_drives_the_selected_joint ERROR                                                                       [100%]
+
+========================================================================= ERRORS ==========================================================================
+_________________________________________________________ ERROR at setup of test_entry_file_loads _________________________________________________________
+file /home/kevin-lianhu/student-robotics-training-WK3/tests/verify_berkeley_model.py, line 29
+  def test_entry_file_loads(model):
+E       fixture 'model' not found
+>       available fixtures: anyio_backend, anyio_backend_name, anyio_backend_options, cache, capfd, capfdbinary, caplog, capsys, capsysbinary, capteesys, doctest_namespace, free_tcp_port, free_tcp_port_factory, free_udp_port, free_udp_port_factory, load_model, monkeypatch, pytestconfig, record_property, record_testsuite_property, record_xml_attribute, recwarn, subtests, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory
+>       use 'pytest --fixtures [testpath]' for help on them.
+
+/home/kevin-lianhu/student-robotics-training-WK3/tests/verify_berkeley_model.py:29
+______________________________________________________ ERROR at setup of test_selected_joint_exists _______________________________________________________
+file /home/kevin-lianhu/student-robotics-training-WK3/tests/verify_berkeley_model.py, line 36
+  def test_selected_joint_exists(model):
+E       fixture 'model' not found
+>       available fixtures: anyio_backend, anyio_backend_name, anyio_backend_options, cache, capfd, capfdbinary, caplog, capsys, capsysbinary, capteesys, doctest_namespace, free_tcp_port, free_tcp_port_factory, free_udp_port, free_udp_port_factory, load_model, monkeypatch, pytestconfig, record_property, record_testsuite_property, record_xml_attribute, recwarn, subtests, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory
+>       use 'pytest --fixtures [testpath]' for help on them.
+
+/home/kevin-lianhu/student-robotics-training-WK3/tests/verify_berkeley_model.py:36
+_____________________________________________________ ERROR at setup of test_selected_actuator_exists _____________________________________________________
+file /home/kevin-lianhu/student-robotics-training-WK3/tests/verify_berkeley_model.py, line 40
+  def test_selected_actuator_exists(model):
+E       fixture 'model' not found
+>       available fixtures: anyio_backend, anyio_backend_name, anyio_backend_options, cache, capfd, capfdbinary, caplog, capsys, capsysbinary, capteesys, doctest_namespace, free_tcp_port, free_tcp_port_factory, free_udp_port, free_udp_port_factory, load_model, monkeypatch, pytestconfig, record_property, record_testsuite_property, record_xml_attribute, recwarn, subtests, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory
+>       use 'pytest --fixtures [testpath]' for help on them.
+
+/home/kevin-lianhu/student-robotics-training-WK3/tests/verify_berkeley_model.py:40
+________________________________________________ ERROR at setup of test_actuator_drives_the_selected_joint ________________________________________________
+file /home/kevin-lianhu/student-robotics-training-WK3/tests/verify_berkeley_model.py, line 44
+  def test_actuator_drives_the_selected_joint(model):
+E       fixture 'model' not found
+>       available fixtures: anyio_backend, anyio_backend_name, anyio_backend_options, cache, capfd, capfdbinary, caplog, capsys, capsysbinary, capteesys, doctest_namespace, free_tcp_port, free_tcp_port_factory, free_udp_port, free_udp_port_factory, load_model, monkeypatch, pytestconfig, record_property, record_testsuite_property, record_xml_attribute, recwarn, subtests, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory
+>       use 'pytest --fixtures [testpath]' for help on them.
+
+/home/kevin-lianhu/student-robotics-training-WK3/tests/verify_berkeley_model.py:44
+================================================================= short test summary info =================================================================
+ERROR tests/verify_berkeley_model.py::test_entry_file_loads
+ERROR tests/verify_berkeley_model.py::test_selected_joint_exists
+ERROR tests/verify_berkeley_model.py::test_selected_actuator_exists
+ERROR tests/verify_berkeley_model.py::test_actuator_drives_the_selected_joint
+==================================================================== 4 errors in 0.30s ====================================================================       
+
+Analysis:
+
+          There's no model fixture in that list — but there is one called load_model. That's not a built-in pytest fixture, which means it's coming from your tests/verify_berkeley_model.py file itself. This strongly suggests the fixture function in your file is actually named load_model, not model
+          '''
+             @pytest.fixture(scope="module")
+             def load_model():   # <-- named load_model here
+             return mujoco.MjModel.from_xml_path(MODEL_PATH)
+          '''
+      Confirm:
+             '''
+                 grep -n "def load_model\|def model\|(model)\|(load_model)" tests/verify_berkeley_model.py
+             '''
+
+             Results:
+                    [
+                      23:def model():
+                      28:def test_entry_file_loads(model):
+                      35:def test_selected_joint_exists(model):
+                      39:def test_selected_actuator_exists(model):
+                      43:def test_actuator_drives_the_selected_joint(model):
+                      55:    test_entry_file_loads(model)
+                      56:    test_selected_joint_exists(model)
+                      57:    test_selected_actuator_exists(model)
+                      58:    test_actuator_drives_the_selected_joint(model)
+                    ]
+
+Fix:
+          '''
+             @pytest.fixture(scope="module")
+             def model():   # renamed to match what the tests expect
+             return mujoco.MjModel.from_xml_path(MODEL_PATH)
+          '''
+
+          re-run this file:
+             '''
+                python -m pytest tests/verify_berkeley_model.py -v
+             '''
+             
+
+            
+
+                
