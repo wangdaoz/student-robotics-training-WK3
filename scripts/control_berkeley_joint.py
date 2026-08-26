@@ -17,6 +17,8 @@ import time
 import mujoco
 import numpy as np
 
+from PIL import Image
+
 MODEL_PATH = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", 
                             "models/berkeley/Berkeley-Humanoid-Lite-Assets/data/robots/berkeley_humanoid/berkeley_humanoid_lite/mjcf", 
                             "bhl_scene.xml"))
@@ -51,6 +53,13 @@ def parse_args():
     parser.add_argument(
         "--log-file", type=str, default="evidence/logs/control_berkeley_joint.csv",
         help="Where to write the before/after numerical evidence(CSV).",
+    )
+    """ task #27 """
+    parser.add_argument(
+        "--record", action="store_true",
+        help="Save a start/end screenshot and a short frame sequence as "
+             "supplementary visual evidence. The CSV log remains the "
+             "primary proof either way.",
     )
     return parser.parse_args()
 
@@ -92,6 +101,20 @@ def main():
 
     mujoco.mj_resetData(model, data)
     mujoco.mj_forward(model, data)  # populate derived quantities before reading initial state
+    
+    """task #27"""
+    if args.record:
+        os.makedirs("evidence/screenshots", exist_ok=True)
+        renderer = mujoco.Renderer(model, height=480, width=640)
+        cam = mujoco.MjvCamera()
+        cam.lookat[:] = [0, 0, 0.9]   # roughly the robot's torso height
+        cam.distance = 3.0
+        cam.azimuth = 90
+        cam.elevation = -15
+
+        renderer.update_scene(data, camera=cam)
+        Image.fromarray(renderer.render()).save("evidence/screenshots/before.png")
+        frames = [renderer.render()]  # first frame of the sequence
 
     initial_qpos = float(data.qpos[qpos_adr])
     initial_qvel = float(data.qvel[qvel_adr])
@@ -100,8 +123,26 @@ def main():
     data.ctrl[actuator_id] = args.ctrl
 
     n_steps = int(args.duration / model.opt.timestep)
-    for _ in range(n_steps):
+    for step in range(n_steps):
         mujoco.mj_step(model, data)
+        """task #27"""
+        if args.record and step % max(1, n_steps // 30) == 0:  # ~30 frames total, '//': operator is Python's floor division operator.
+                                                               # e.g. It divides n_steps by 30 and keeps the integer part.
+            renderer.update_scene(data, camera=cam)
+            frames.append(renderer.render())
+            
+    """task #27"""
+    if args.record:
+        renderer.update_scene(data, camera=cam)
+        Image.fromarray(renderer.render()).save("evidence/screenshots/after.png")
+
+        try:
+            import imageio
+            """Save multiple images as an animated image/video."""
+            imageio.mimsave("evidence/screenshots/control_sequence.gif", frames, fps=10) 
+        except ImportError:
+            print("imageio not installed -- skipping GIF; before.png/after.png still saved. "
+                  "Install with: pip install imageio --break-system-packages")
 
     final_qpos = float(data.qpos[qpos_adr])
     final_qvel = float(data.qvel[qvel_adr])
