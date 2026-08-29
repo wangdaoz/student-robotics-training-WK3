@@ -532,7 +532,53 @@ Fix:
                 python -m pytest tests/verify_berkeley_model.py -v
              '''
              
+### Stretch Goals:
+                  
+        Goal 1:	Control two joints sequentially.
 
-            
+                  Error Report:
+                  [
+                     Traceback (most recent call last):
+                       File "/home/kevin-lianhu/student-robotics-training-WK3/scripts/mile3.5stretch_goal1_Control_2_joints.py", line 141, in <module>
+                         main()
+                       File "/home/kevin-lianhu/student-robotics-training-WK3/scripts/mile3.5stretch_goal1_Control_2_joints.py", line 138, in main
+                         writer.writerow(all_results)
+                       File "/usr/lib/python3.12/csv.py", line 164, in writerow
+                         return self.writer.writerow(self._dict_to_list(rowdict))
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                       File "/usr/lib/python3.12/csv.py", line 157, in _dict_to_list
+                         wrong_fields = rowdict.keys() - self.fieldnames
+                                        ^^^^^^^^^^^^
+                      AttributeError: 'list' object has no attribute 'keys'
+                  ]
 
+            Fix: 
+               locate line 138: <writer.writerow(all_results)>
+               revise: <writer.writerows(all_results)>
+
+        Goal 3: Add a command-line option for joint name, control magnitude, and duration
+
+            Error: AttributeError: 'Namespace' object has no attribute 'target'
+
+            Fix: 
+                in the script: scripts/mile3.5_stretch_3_contr_berekeley_joint.py,
+
+                In line 83 and line 124, 
+                changes the codes: <args.target-joint> to <args.target_joint>
+
+            Explain:
+               
+               - What's happening:
+                   You wrote "--target-joint" as the flag name — that part is exactly right, and it's genuinely why you type --target-joint on the command line. But argparse doesn't store the value under an attribute literally called target-joint. Look at the output above: it created target_joint (underscore), not target-joint (hyphen).
+
+               - Why argparse does this automatically?
+
+                  args is a plain object, and you access its fields with normal Python attribute syntax: args.something. But - is not a legal character inside a Python identifier — args.target-joint isn't "the attribute named target-joint," it's parsed by Python itself as subtraction: args.target minus a variable called joint. That's precisely bug #2 from before — Python happily accepted it as valid syntax, just not the syntax you intended.
+
+                  since --flag-name-with-hyphens is the normal Unix CLI convention (--dry-run, --log-file, etc. — you've used this pattern yourself in --log-file and --freeze-base throughout this whole project). So argparse automatically converts hyphens to underscores when deriving the attribute name (called dest internally), while leaving the actual command-line flag spelled with hyphens. Two different things, one automatic translation between them:
+
+                  What you type on the command line |	What argparse calls it internally (dest)
+                          --target-joint            |             args.target_joint
+                          --log-file                |             args.log_file
+                          --freeze-base             |             args.freeze_base 
                 

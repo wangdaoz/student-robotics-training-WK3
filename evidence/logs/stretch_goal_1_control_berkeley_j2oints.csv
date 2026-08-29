@@ -1,0 +1,3 @@
+timestamp,joint_name,actuator_name,joint_range_min_rad,joint_range_max_rad,control_input_Nm,duration_s,n_steps,freeze_base,initial_qpos_rad,final_qpos_rad,delta_qpos_rad,initial_qvel_rad_s,final_qvel_rad_s
+2026-08-28T14:26:27,leg_left_hip_roll_joint,leg_left_hip_roll_joint,-0.17453292519943028,1.5707963267948992,1.0,2.0,1000,False,0.0,-0.1754976558522356,-0.1754976558522356,0.0,-0.0011501601640055202
+2026-08-28T14:26:27,leg_right_hip_roll_joint,leg_right_hip_roll_joint,-1.5707963267948752,0.17453292519945426,1.0,2.0,1000,False,0.0,0.17512149169850533,0.17512149169850533,0.0,-6.331525784747372e-06
