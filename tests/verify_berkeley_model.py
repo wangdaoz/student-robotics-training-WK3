@@ -14,8 +14,8 @@ MODEL_PATH = os.path.normpath(os.path.join(os.path.dirname(__file__), "..",
                             "models/berkeley/Berkeley-Humanoid-Lite-Assets/data/robots/berkeley_humanoid/berkeley_humanoid_lite/mjcf", 
                             "bhl_scene.xml"))
 
-JOINT_NAME = "arm_left_shoulder_pitch_joint"
-ACTUATOR_NAME = "arm_left_shoulder_pitch_joint"
+JOINT_NAME = "arm_right_shoulder_pitch_joint"
+ACTUATOR_NAME = "arm_right_shoulder_pitch_joint"
 
 
 

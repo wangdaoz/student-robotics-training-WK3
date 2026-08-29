@@ -1,0 +1,2 @@
+timestamp,joint_name,actuator_names,joint_range_min_rad,joint_range_max_rad,control_input_Nm,average_control_input,duration_s,average_n_steps,freeze_base,initial_qpos_rad,final_qpos_rad,delta_qpos_rad,initial_qvel_rad_s,final_qvel_rad_s
+2026-08-28T20:03:29,arm_left_shoulder_pitch_joint,arm_left_shoulder_pitch_joint,-1.5707963267948983,0.7853981633974465,1.0,1.0,2.0,1000,False,0.0,0.7869167570661497,0.7869167570661497,0.0,-1.3923087541909494e-05
