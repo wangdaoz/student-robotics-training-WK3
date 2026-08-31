@@ -50,13 +50,13 @@ Engineering tasks:
                  '''
                     unset PYTHONPATH
                     source .venv/bin/activate
-                    python scripts/control_berkeley_joint.py --ctrl 1.5 --duration 3.0
-
+                    python scripts/control_berkeley_joint.py --ctrl 1.0 --duration 1.0
+                 '''
          Task #27
                  '''
                     unset PYTHONPATH
                     source .venv/bin/activate
-                    python scripts/control_berkeley_joint.py --ctrl 1.5 --duration 3.0 --record
+                    python scripts/control_berkeley_joint.py --ctrl 1.0 --duration 1.0 --record
                  '''
                  
                Expected Results:
@@ -257,6 +257,27 @@ Stretch Goals
                      ]
 
          the exact missing path is: berkeley-humanoid-lite-assets/data/robots/berkeley_humanoid/berkeley_humanoid_lite/mjcf/assets/merged/
+           
+         ● berkeley_humanoid_lite.xml declares <compiler meshdir="assets" .../> — every mesh reference is relative to an 'assets' folder.
+
+                ● Individual mesh entry points in berkeley_humanoid_lite.xml and berkeley_humanoid_lite_biped.xml looks are both in such a format <file="merged/xxx.stl>, rather than "mcjf/assets/xxx.stl", thus, there is an extra subfolder 'merged/'
+
+                ● in the subfolder 'Berkeley-Humanoid-Lite-Assets/data/robots/berkeley_humanoid/berkeley_humanoid_lite/mjcf', no subfolder 'assets/merged/'
+
+                  According to the file: README.md, the meshes are shared under /data/robots/berkeley_humanoid/berkeley_humanoid_lite/meshes/ — a sibling folder to mjcf/, not a subfolder inside mjcf/.
+
+                  But the XML itself says: <compiler meshdir="assets" .../>, and mesh entries reference paths like merged/leg_right_knee_pitch_visual.stl — implying the loader looks for assets/merged/... relative to wherever the XML file sits.
+
+                  The directory: '/data/robots/berkeley_humanoid/berkeley_humanoid_lite/meshes/' indeed exists and contains '.stl' files.
+ 
+                  Further verification:
+                    ● config.json has "merge_stls": true — confirms a merge step really does run.
+
+                    ● .gitignore has **/assets/* under a # Onshape-to-robot comment — confirms this output is intentionally excluded from git.
+
+                    ● The export script (export_onshape_to_mjcf.py) actually creates mjcf/assets/merged/, copies meshes there, then runs content.replace("assets/merged/", "../meshes/") to rewrite the XML paths to point at the shared meshes/ folder instead — then deletes the assets folder (shutil.rmtree).
+
+                  Thus, it's a deliberately generated-and-discarded intermediate build artifact. And the path-rewrite step has a real bug: it does a literal string search for "assets/merged/", but MJCF splits that into two separate attributes (meshdir="assets" + file="merged/x.stl") that never appear concatenated as one string — so the rewrite silently never fires on this file. That's the actual root cause of the broken path, not just "files went missing."
 
        •	 How can I map a MuJoCo actuator to the joint it controls?
          

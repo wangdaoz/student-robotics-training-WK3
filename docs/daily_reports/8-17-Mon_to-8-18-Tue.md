@@ -1,6 +1,6 @@
 ### Milestone
 
-     3.2 Build and Control a Simple Articulated Model
+     3.3 Build and Control a Simple Articulated Model
 
 ### Current objective
      
